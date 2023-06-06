@@ -1,17 +1,103 @@
 # SD-Core_DPDK_SR-IOV
+## Pre-requisite:
+-  As a pre-requisite please make sure sriov, virtualization and VT-d parameters are enabled in BIOS.
 
-####  In SD-Core with `DPDK` and `SR-IOV`, we have to configure the following:
+- make sure enough hugepage memory allocated, iommu enabled. These changes can be made by updating
+  below parameter in /etc/default/grub as follows,
+```bash
+GRUB_CMDLINE_LINUX="intel_iommu=on iommu=pt default_hugepagesz=1G hugepagesz=1G hugepages=32 transparent_hugepage=never"
+```
+Once it is updated apply the changes by running below command,
+```bash
+sudo update-grub
+sudo reboot
+```
+You can verify the allocated hugepages using below command,
+```bash
+cat /proc/meminfo | grep HugePages
+```
+
+## Network-Architecture Info:
+- Two different routers are used. One is used for the `DATA_IFACE` and RAN and does not hav internet connection.
+- The other router is used for `Node IP` and has internet connection.
+- Server-1 us used in this deployment
+- Virtual Functions are only made at `DATA_IFACE` and attached to both access and core interface.
+![net](./images/SDCore-sriov%2Bdpdk.png)
+
+
+## Deployment
+Firstly clone this repo:
+```bash
+git clone https://github.com/NgKore47/SD-Core-DPDK.git
+```
+Then make the cord directory & clone the sd-core-helm-charts:
+```bash
+mkdir ~/cord
+cd ~/cord/
+git clone https://github.com/NgKore47/sdcore-helm-charts.git
+```
+### **To see the changes we did in the previous deployment, [click here](#in-sd-core-with-dpdk-and-sr-iov-we-did-these-changes).**
+
+- To setup SR-IOV Virtual Functions, refer [here](https://github.com/NgKore47/Documentation/raw/main/SD-Core_DPDK_SR-IOV/SetupSR_IOV.sh) or you can also make temporary virtual functions using the below command:
+```bash
+echo 4 > /sys/class/net/ens1f0/device/sriov_numvfs
+```
+
+
+- To setup DPDK, refer [here](./dpdk-install/SetupDPDK.sh) or directory run the script
+```bash
+sudo bash ./dpdk-install/SetupDPDK.sh
+```
+
+- Bind the VF devices to the vfio-pci driver as follows,
+```bash
+./dpdk-install/dpdk.py -b vfio-pci <pci-id of vf0>
+./dpdk-install/dpdk.py -b vfio-pci <pci-id of vf1>
+./dpdk-install/dpdk.py -b vfio-pci <pci-id of vf2>
+./dpdk-install/dpdk.py -b vfio-pci <pci-id of vf3>
+```
+For eg: `./dpdk-install/dpdk.py -b vfio-pci 0000:b1:01.0`
+
+- Sriov plugin installation
+Before sriov plugin install let's create the cluster
+```bash
+make node-prep
+```
+Now sriov plugin:
+```bash
+kubectl apply -f ./sriov/sriov-device-plugin.yaml
+```
+Change the `./sriov/sriov-device-plugin-config.yaml` according to the pci id of the virtual functions.
+After that:
+```bash
+kubectl apply -f ./sriov/sriov-device-plugin-config.yaml
+```
+- Make sure that there are more than 2 intel_sriov_vfio resources available
+```bash
+kubectl get nodes -o json | jq '.items[].status.allocatable'
+```
+
+- Now deply the 5G-Core using the Makefile
+```bash
+ENABLE_GNBSIM=false DATA_IFACE=ens1f0 CHARTS=latest make 5g-core
+```
+
+After all the pods are up and running, run the following command:
+```bash
+sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+```
+Here, `eno1 = Node IP`
+
+###  In SD-Core with `DPDK` and `SR-IOV`, we did these changes:
 
 - `~/Aether/sd-core-5g-values.yaml`
 
-	- use external IP for `AMF` --> same as `Data_Iface`
+	- use external IP for `AMF` --> same as `Node_IP`
 	- ***In the `plmn`, change the `mcc`, `mnc`*** as shown below, this part is very important.
 	- Enable `SR-IOV` and `hugepages`
 	- Change `access` and `core` interface IPs according to core
 	- Change mode to `DPDK`
-#### To setup DPDK, refer [here](https://github.com/NgKore47/Documentation/raw/main/SD-Core_DPDK_SR-IOV/SetupDPDK.sh)
 
-#### To setup SR-IOV, refer [here](https://github.com/NgKore47/Documentation/raw/main/SD-Core_DPDK_SR-IOV/SetupSR_IOV.sh)
 
 > NOTE: Here is the list of all the changes that needs to be done on fresh SD-Core with DPDK and SR-IOV
 ```patch

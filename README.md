@@ -32,9 +32,10 @@ git clone https://github.com/NgKore47/SD-Core-DPDK.git
 ```
 Then make the cord directory & clone the sd-core-helm-charts:
 ```bash
-mkdir ~/cord
-cd ~/cord/
+cd ~/
 git clone https://github.com/NgKore47/sdcore-helm-charts.git
+tar -xvzf ~/sdcore-helm-charts/cord.tar
+
 ```
 ### **To see the changes we did in the previous deployment, [click here](#in-sd-core-with-dpdk-and-sr-iov-we-did-these-changes).**
 
@@ -57,6 +58,7 @@ sudo bash ./dpdk-install/SetupDPDK.sh
 ./dpdk-install/dpdk.py -b vfio-pci <pci-id of vf3>
 ```
 For eg: `./dpdk-install/dpdk.py -b vfio-pci 0000:b1:01.0`
+> NOTE: You can also use `./dpdk-install/dpdk.py -s` cmd to check binded VF 
 
 - Sriov plugin installation
 Before sriov plugin install let's create the cluster
@@ -77,9 +79,16 @@ kubectl apply -f ./sriov/sriov-device-plugin-config.yaml
 kubectl get nodes -o json | jq '.items[].status.allocatable'
 ```
 
+- Pull Ngkore private docker images using
+```bash
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=ngkore --docker-password=dckr_pat_3aEGHh5fOR7GYqCc9gB0_rvt5aw --docker-email=ngkore47@gmail.com
+kubectl create -f ~/sdcore-helm-charts/private-docker-images.yml
+```
+> **Note:** After this step, wait for a few minutes to pull the private images
+
 - Now deply the 5G-Core using the Makefile
 ```bash
-ENABLE_GNBSIM=false DATA_IFACE=ens1f0 CHARTS=latest make 5g-core
+ENABLE_GNBSIM=false DATA_IFACE=enp101s0f1 CHARTS=local make 5g-core
 ```
 
 After all the pods are up and running, run the following command:

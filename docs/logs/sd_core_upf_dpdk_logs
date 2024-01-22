@@ -1,0 +1,320 @@
+sd_core_upf_dpdk_logs
+
+one@one:~$ kubectl describe pod upf-0 -n omec 
+Name:         upf-0
+Namespace:    omec
+Priority:     0
+Node:         one/192.168.1.233
+Start Time:   Sun, 21 Jan 2024 19:15:23 +0000
+Labels:       app=upf
+              controller-revision-hash=upf-b47fb6dc4
+              release=sd-core
+              statefulset.kubernetes.io/pod-name=upf-0
+Annotations:  cni.projectcalico.org/containerID: c0a6306ea49a6b5b3391cda4c3811fad8efdf0e19ef0ca041c0d4ca337aa6887
+              cni.projectcalico.org/podIP: 192.168.84.245/32
+              cni.projectcalico.org/podIPs: 192.168.84.245/32
+              k8s.v1.cni.cncf.io/network-status:
+                [{
+                    "name": "k8s-pod-network",
+                    "ips": [
+                        "192.168.84.245"
+                    ],
+                    "default": true,
+                    "dns": {}
+                },{
+                    "name": "omec/access-net",
+                    "ips": [
+                        "192.168.252.3"
+                    ],
+                    "dns": {},
+                    "device-info": {
+                        "type": "pci",
+                        "version": "1.0.0",
+                        "pci": {
+                            "pci-address": "0000:65:11.1"
+                        }
+                    }
+                },{
+                    "name": "omec/core-net",
+                    "ips": [
+                        "192.168.250.3"
+                    ],
+                    "dns": {},
+                    "device-info": {
+                        "type": "pci",
+                        "version": "1.0.0",
+                        "pci": {
+                            "pci-address": "0000:65:10.5"
+                        }
+                    }
+                }]
+              k8s.v1.cni.cncf.io/networks:
+                [ { "name": "access-net", "interface": "access", "ips": ["192.168.252.3/24"] }, { "name": "core-net", "interface": "core", "ips": ["192.16...
+              k8s.v1.cni.cncf.io/networks-status:
+                [{
+                    "name": "k8s-pod-network",
+                    "ips": [
+                        "192.168.84.245"
+                    ],
+                    "default": true,
+                    "dns": {}
+                },{
+                    "name": "omec/access-net",
+                    "ips": [
+                        "192.168.252.3"
+                    ],
+                    "dns": {},
+                    "device-info": {
+                        "type": "pci",
+                        "version": "1.0.0",
+                        "pci": {
+                            "pci-address": "0000:65:11.1"
+                        }
+                    }
+                },{
+                    "name": "omec/core-net",
+                    "ips": [
+                        "192.168.250.3"
+                    ],
+                    "dns": {},
+                    "device-info": {
+                        "type": "pci",
+                        "version": "1.0.0",
+                        "pci": {
+                            "pci-address": "0000:65:10.5"
+                        }
+                    }
+                }]
+              kubernetes.io/psp: global-unrestricted-psp
+Status:       Running
+IP:           192.168.84.245
+IPs:
+  IP:           192.168.84.245
+Controlled By:  StatefulSet/upf
+Init Containers:
+  bess-init:
+    Container ID:  containerd://87f5af6c7ebfeff2838a4a7b9ca9092210c27c63eeba4a760cb0c606dca2a26a
+    Image:         omecproject/upf-epc-bess:master-5786085
+    Image ID:      docker.io/omecproject/upf-epc-bess@sha256:e292b7413d54d0f5592fce9ec58ce876b07b00459a69a2d2f266b8dc1f5a37db
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -xec
+    Args:
+      ip route replace 192.168.2.0/24 via 192.168.252.1; ip route replace default via 192.168.250.1 metric 110; ip route replace 192.168.1.233 via 169.254.1.1; iptables -I OUTPUT -p icmp --icmp-type port-unreachable -j DROP;
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Sun, 21 Jan 2024 19:15:29 +0000
+      Finished:     Sun, 21 Jan 2024 19:15:29 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     128m
+      memory:  64Mi
+    Requests:
+      cpu:        128m
+      memory:     64Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+Containers:
+  bessd:
+    Container ID:  containerd://17293bad18f8bb8df1a26e13a258f0ad8b2a4c7c1702000963029f919f9ea4ce
+    Image:         omecproject/upf-epc-bess:master-5786085
+    Image ID:      docker.io/omecproject/upf-epc-bess@sha256:e292b7413d54d0f5592fce9ec58ce876b07b00459a69a2d2f266b8dc1f5a37db
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -xc
+    Args:
+      bessd -f -grpc-url=0.0.0.0:10514
+    State:          Running
+      Started:      Sun, 21 Jan 2024 19:15:30 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:                                2
+      hugepages-1Gi:                      2Gi
+      intel.com/intel_sriov_vfio_access:  1
+      intel.com/intel_sriov_vfio_core:    1
+      memory:                             1Gi
+    Requests:
+      cpu:                                2
+      hugepages-1Gi:                      2Gi
+      intel.com/intel_sriov_vfio_access:  1
+      intel.com/intel_sriov_vfio_core:    1
+      memory:                             1Gi
+    Liveness:                             tcp-socket :10514 delay=15s timeout=1s period=20s #success=1 #failure=3
+    Environment:
+      CONF_FILE:  /etc/bess/conf/upf.json
+    Mounts:
+      /dev/hugepages from hugepages (rw)
+      /etc/bess/conf from configs (rw)
+      /pod-share from shared-app (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+  routectl:
+    Container ID:  containerd://e6632a0986727beccc6b6e5d6b23b6b84d28109520a372c55e363e2470f9bc54
+    Image:         omecproject/upf-epc-bess:master-5786085
+    Image ID:      docker.io/omecproject/upf-epc-bess@sha256:e292b7413d54d0f5592fce9ec58ce876b07b00459a69a2d2f266b8dc1f5a37db
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /opt/bess/bessctl/conf/route_control.py
+    Args:
+      -i
+      access
+      core
+    State:          Running
+      Started:      Sun, 21 Jan 2024 19:15:34 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     256m
+      memory:  128Mi
+    Requests:
+      cpu:     256m
+      memory:  128Mi
+    Environment:
+      PYTHONUNBUFFERED:  1
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+  web:
+    Container ID:  containerd://d88c6beef9c7ebb7432c5fb2dbddeaeb5b975056678f1df96a0a15c6da595ed9
+    Image:         omecproject/upf-epc-bess:master-5786085
+    Image ID:      docker.io/omecproject/upf-epc-bess@sha256:e292b7413d54d0f5592fce9ec58ce876b07b00459a69a2d2f266b8dc1f5a37db
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -xc
+      bessctl http 0.0.0.0 8000
+    State:          Running
+      Started:      Sun, 21 Jan 2024 19:15:34 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     256m
+      memory:  128Mi
+    Requests:
+      cpu:        256m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+  pfcp-agent:
+    Container ID:  containerd://79cce49a8c877e4afce4333bb284ecba96bf6461c589ef1e0dddd9c4703cc144
+    Image:         omecproject/upf-epc-pfcpiface:master-5786085
+    Image ID:      docker.io/omecproject/upf-epc-pfcpiface@sha256:bd728a0d41af5fe4a41800b989c9d589d8cd4055299940726b803cdd43691268
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      pfcpiface
+    Args:
+      -config
+      /tmp/conf/upf.json
+    State:          Running
+      Started:      Sun, 21 Jan 2024 19:15:34 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     256m
+      memory:  128Mi
+    Requests:
+      cpu:        256m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /pod-share from shared-app (rw)
+      /tmp/conf from configs (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+  arping:
+    Container ID:  containerd://867928e424e3273b99cb878aee6352ac69e13948edd215165b249bb53aa95c5a
+    Image:         registry.aetherproject.org/tools/busybox:stable
+    Image ID:      registry.aetherproject.org/tools/busybox@sha256:7de5fa822a9d1e507c36565ee0cf50c08faa64505461c844a3ce3944d23efa35
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -xc
+    Args:
+      while true; do
+        # arping does not work - BESS graph is still disconnected
+        #arping -c 2 -I access 192.168.252.1
+        #arping -c 2 -I core 192.168.250.1
+        ping -c 2 192.168.252.1
+        ping -c 2 192.168.250.1
+        sleep 10
+      done
+      
+    State:          Running
+      Started:      Sun, 21 Jan 2024 19:15:34 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     128m
+      memory:  64Mi
+    Requests:
+      cpu:        128m
+      memory:     64Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4r6k4 (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  configs:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      upf
+    Optional:  false
+  shared-app:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  hugepages:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     HugePages
+    SizeLimit:  <unset>
+  kube-api-access-4r6k4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Guaranteed
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age   From               Message
+  ----    ------          ----  ----               -------
+  Normal  Scheduled       11m   default-scheduler  Successfully assigned omec/upf-0 to one
+  Normal  AddedInterface  11m   multus             Add eth0 [192.168.84.245/32] from k8s-pod-network
+  Normal  AddedInterface  11m   multus             Add access [192.168.252.3/24] from omec/access-net
+  Normal  AddedInterface  11m   multus             Add core [192.168.250.3/24] from omec/core-net
+  Normal  Pulled          11m   kubelet            Container image "omecproject/upf-epc-bess:master-5786085" already present on machine
+  Normal  Created         11m   kubelet            Created container bess-init
+  Normal  Started         11m   kubelet            Started container bess-init
+  Normal  Pulled          11m   kubelet            Container image "omecproject/upf-epc-bess:master-5786085" already present on machine
+  Normal  Created         11m   kubelet            Created container bessd
+  Normal  Started         11m   kubelet            Started container bessd
+  Normal  Created         11m   kubelet            Created container routectl
+  Normal  Pulled          11m   kubelet            Container image "omecproject/upf-epc-bess:master-5786085" already present on machine
+  Normal  Started         11m   kubelet            Started container routectl
+  Normal  Pulled          11m   kubelet            Container image "omecproject/upf-epc-bess:master-5786085" already present on machine
+  Normal  Created         11m   kubelet            Created container web
+  Normal  Started         11m   kubelet            Started container web
+  Normal  Pulled          11m   kubelet            Container image "omecproject/upf-epc-pfcpiface:master-5786085" already present on machine
+  Normal  Created         11m   kubelet            Created container pfcp-agent
+  Normal  Started         11m   kubelet            Started container pfcp-agent
+  Normal  Pulled          11m   kubelet            Container image "registry.aetherproject.org/tools/busybox:stable" already present on machine
+  Normal  Created         11m   kubelet            Created container arping
+  Normal  Started         11m   kubelet            Started container arping
+one@one:~$ 
+

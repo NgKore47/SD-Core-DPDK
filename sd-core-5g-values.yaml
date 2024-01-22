@@ -248,6 +248,7 @@ omec-user-plane:
     repository: "docker.io/"
     # uncomment below section to add update bess image tag
     tags:
+      tools: busybox:stable
       bess: "ngkore/ngk-upf-epc-bess:1.0"
       pfcpiface: "ngkore/ngk-upf-epc-pfcpiface:1.0"
   config:
